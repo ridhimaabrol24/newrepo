@@ -1,0 +1,25 @@
+<?php
+function new_form_install() {
+  $t = get_t();
+  $form = 'new_form'; // machine name of the content type
+
+  // define the node type
+  $form_fields = array(
+    'type' => $form,
+    'name' => $t('New Form'),// Display name of the content type
+    'base' => 'node_content',
+    'title_label' => $t('Title'),
+    'description' => $t('create forms'),
+    'custom' => TRUE,
+  );
+
+  // set other node defaults not declared above
+  $content_type = node_type_set_defaults($form_fields);
+
+  // add the body field
+  // node_add_body_field($content_type, $t('Body'));
+
+  // save the content type
+  node_type_save($content_type);
+}
+?>

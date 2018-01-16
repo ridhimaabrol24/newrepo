@@ -1,0 +1,6 @@
+name= demo form
+description= creating a demo form
+core= 7.x
+package= custom module
+type= module
+project= "dummy"

@@ -1,0 +1,53 @@
+<?php
+function myapi_services_resources() {
+  return array(
+    'myresource' => array(
+      'retrieve' => array(
+        'callback' => '_myapi_retrieve',
+          'args' => array(
+            array(
+              'name' => 'arg1',
+              'optional' => FALSE,
+              'source' => array('path' => 0),
+              'type' => 'int',
+              'description' => 'Test argument 1.',
+            ),
+        ),
+        // 'access callback' => '_myapi_access',
+        // 'access arguments' => array('view'),
+        // 'access arguments append' => TRUE,
+      ),
+
+      'create' => array(
+      'help' => 'Creates messages',
+      'callback' => '_myapi_create',
+
+         'args' => array(
+              array(
+                  'name' => 'data',
+                  'type' => 'struct',
+                  'description' => '',
+                  'source' => 'data',
+                  'optional' => TRUE,
+              ),
+         ),
+    ),
+
+
+
+
+
+       ),
+
+   );
+}
+
+function _myapi_create($data) {
+  print '***here';
+}
+
+function _myapi_retrieve($arg1) {
+    return 'Action retrieve' . $arg1;
+}
+
+ ?>

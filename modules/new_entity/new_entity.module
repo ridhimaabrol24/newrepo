@@ -1,0 +1,49 @@
+<?php
+
+function new_entity_entity_info() {
+  $info = array();
+
+  $info['newentity'] = array(
+    // Human readable label.
+    'label' => t('New Entity'),
+    // Table for storing entity data, defined in hook_schema().
+    'base table' => 'new_entity',
+    // This helps Entity API know how to query your custom table.
+    'entity keys' => array(
+      'id' => 'id',
+    ),
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function new_entity_menu() {
+  $items = array();
+  $items['admin/structure/newentity'] = array(
+    'title' => 'Demo page',
+    'page callback' => 'newentity_demo_page',
+    'access callback' => TRUE,
+    'menu' => 'navigation',
+  );
+  return $items;
+}
+
+/**
+ * Callback for /videoentity page.
+ *
+ * Just a place to test things out and be able to see the results on a page.
+ */
+function newentity_demo_page() {
+  $new = entity_load('newentity', 'id', array(1));
+  kpr($new);
+
+  // Or load it with EFQ.
+  // $query = new EntityFieldQuery();
+  // $query->entityCondition('entity_type', 'video');
+  // $results = $query->execute();
+  // kpr($results);
+  return 'hello there!';
+}

@@ -1,0 +1,7 @@
+name = New Entity
+description = creating a custom entity
+core= 7.x
+package= custom module
+type= module
+project= "dummy"
+dependencies[]= entity

@@ -1,0 +1,79 @@
+<?php
+
+function custom_rest_api_get_note() {
+  // $id = 1;
+  // $res = db_query("SELECT * FROM rest_api WHERE id=1")->fetchAll();
+  // $result = json_encode($res);
+  // return $result;
+
+  return "Hello";
+}
+
+
+function custom_rest_api_write_note($note) {
+  $primary_key = !empty($note->id) ? array('id') : NULL;
+  drupal_write_record('rest_api', $note, $primary_key);
+}
+
+/**
+* Deletes a note from the database.
+*
+* @param int $id
+* @return void
+*/
+function custom_rest_api_delete_note($id) {
+  db_query("DELETE FROM {rest_api} WHERE id='".$id."'");
+
+}
+
+
+function custom_rest_api_services_resources() {
+  return array(
+    'note' => array(
+      'action_retrieve' => array(
+        'callback' => '_MYMODULE_action_retrieve',
+          'args' => array(
+            array(
+              'name' => 'arg1',
+              'optional' => FALSE,
+              'source' => array('path' => 0),
+              'type' => 'int',
+              'description' => 'Test argument 1.',
+            ),
+        ),
+        'access callback' => '_MYMODULE_access',
+        'access arguments' => array('view'),
+        'access arguments append' => TRUE,
+      )
+    ),
+  );
+}
+
+/**
+ * CRUD retrieve callback.
+ */
+function _MYMODULE_retrieve($arg1) {
+    return 'CRUD Retrieve ' . $arg1;
+}
+
+/**
+ * Action retrieve callback.
+ */
+function _MYMODULE_action_retrieve($arg1) {
+    return 'Action retrieve' . $arg1;
+}
+
+
+/**
+ * Targeted Action test callback.
+ */
+function _MYMODULE_targeted_action_test($arg1) {
+    return 'Targeted Action test' . $arg1;
+}
+/**
+ * Access callback.
+ */
+function _MYMODULE_access($op) {
+    return TRUE;
+}
+?>

@@ -1,0 +1,26 @@
+<?php
+ function demo_form_schema() {
+$schema['demo_form'] = array(
+  'description' => 'this is a table',
+  'fields' => array(
+    'Name' => array(
+      'description' => 'The name of the person',
+      'type' => 'text',
+      'not null' => TRUE,
+    ),
+    'roll_no' => array(
+      'description' => 'roll number of the person',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'class' => array(
+      'description' => 'class of the person',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+  ),
+);
+
+
+ return $schema;
+}

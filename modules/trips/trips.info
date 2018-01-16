@@ -1,0 +1,6 @@
+name= Trips
+description= creating a page for upcoming trips
+core= 7.x
+package= custom module
+type= module
+project= "dummy"

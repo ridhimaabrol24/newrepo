@@ -1,0 +1,6 @@
+name= New form
+description= creating a form
+core= 7.x
+package= custom module
+type= module
+project= "dummy"

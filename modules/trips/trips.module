@@ -1,0 +1,105 @@
+<?php
+function trips_menu() {
+  $items['admin/trips'] = array(
+    'title' => 'Trips/Calendar',
+    'description' => 'creating a page for upcoming trips',
+    'page callback' => 'trips_page_callback',
+    'page arguement' => array(1),
+    'access callback' => TRUE,
+
+  );
+  return $items;
+}
+
+ function trips_page_callback(){
+   $view = views_get_view('dates');
+   $view->set_display('page');
+   $view->pre_execute();
+   $view->execute();
+
+   $var=array();
+    foreach($view->result as $key=>$value){
+      $var[$key]=$value->field_field_event_date;
+    }
+
+   $date=array();
+    foreach($var as $k=>$arr){
+      foreach($arr as $key=>$value){
+        array_push($date ,$value['rendered']['#markup']);//fetching all the event dates
+      }
+    }
+  
+   $now=new DateTime;
+   $upcom_date=array();
+    foreach($date as $key=>$value){
+      if($value>=$now->format('Y-m-d H:i:s')){
+        $upcom_date[$key]=$value;//sorting for the future dates
+      }
+    }
+
+   $mon_yr=array();
+    foreach($upcom_date as $key=>$value){
+      $month=date('F Y', strtotime($value));
+      $mon_yr[$key]=$month;//converting dates in month-year format
+    }
+
+    $mon_yr_unique=array_unique($mon_yr);//sorting unique month-year
+      function date_compare($a, $b)
+      {
+        $t1 = strtotime($a);
+        $t2 = strtotime($b);
+        return $t1 - $t2;
+      }
+    usort($mon_yr_unique,'date_compare');//sorting the month naturally in the order they appear
+
+    foreach($mon_yr_unique as $value){
+        echo $value."\n";
+    }
+    echo "<br>";
+    echo "<br>";
+
+
+          foreach($mon_yr_unique as $value){
+              echo $value;//displaying each month-year
+              echo "<br>";
+              $date=date('Y-m',strtotime($value));
+              $list=array();
+              $count=0;
+              $size = cal_days_in_month(CAL_GREGORIAN, date('m',strtotime($value)), date('Y'));
+              for($d=1;$d<=$size;$d++){
+                $time=mktime(0, 0, 0, date('m',strtotime($value)),$d, date('Y',strtotime($value)));
+                $t=date('Y-m-d H:i:s',$time);
+
+                $list=date('d', $time);//displaying dates
+                if(in_array($t,$upcom_date)){
+                  $count++;
+                  echo "<span style='color:red;'>".$list.' '."</span>";//highlighting the dates having events
+                  }else{
+                    echo $list." ";
+                  }
+                }
+                echo "<br>";
+                echo $count." "."Trip(s)";//displaying number of events in a particular month
+
+                $view = views_get_view('ids');//embedding a view displaying nids of the events
+                $view->set_display('block');
+                $view->args = array($date);//applying event-date as the contextual filter
+                $view->pre_execute();
+                $view->execute();
+                $id=array();
+                foreach($view->result as $key=>$value){
+                  $id[$key]=$value->nid;
+                }
+
+                $nid=array_unique($id);//filtering for unique nids
+
+                  foreach($nid as $value){
+                    $result= views_embed_view('trips','trips_block',$value);//embedding the final event view using nids as a contextual filter
+                    echo $result;
+                  }
+                  echo "<br>";
+                }
+}
+
+
+?>

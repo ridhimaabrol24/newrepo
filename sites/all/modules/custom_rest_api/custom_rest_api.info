@@ -1,0 +1,7 @@
+name = Custom Rest API
+description = WebService APIs.
+core = 7.x
+package = Custom Module
+project = dummy
+dependencies[] = services
+dependencies[] = rest_server

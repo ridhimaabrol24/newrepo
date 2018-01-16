@@ -1,0 +1,39 @@
+<?php
+
+function new_entity_schema() {
+  $schema = array();
+  $schema['new_entity'] = array(
+    'description' => 'The base table for the new entity',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary key of the new entity',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Human readable name of the entity.',
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+
+      'created_at' => array(
+        'description' => 'Date and time the entity was processed.',
+        'type' => 'int',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+      'updated_at' => array(
+        'description' => 'Date and time the entity was last modified.',
+        'type' => 'int',
+        'length' => 10,
+        'not null' => FALSE,
+      ),
+
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+?>

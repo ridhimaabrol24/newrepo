@@ -1,0 +1,182 @@
+<?php
+function demo_form_menu() {
+  $items['admin/demo_form'] = array(
+    'title' => 'demo form',
+    'description' => ' creating  a custom form',
+    'page callback' => 'show_list',
+    'access callback' => TRUE,
+  );
+
+  $items['test/delete/%'] = array(
+		'title' => 'Delete Record',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('delete_form',2),
+		'access callback' => TRUE,
+		'type' => MENU_CALLBACK,
+	);
+
+	$items['test/edit/%'] = array(
+		'title' =>'Edit Record',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('edit_form',2),
+	  'access callback' =>  TRUE,
+		'type' => MENU_CALLBACK,
+    );
+
+ return $items;
+}
+
+function demo_form($form,&$form_state) {//creating a form
+
+   $form['ajax_markup'] = array(
+  '#type'  => 'markup',
+  '#method'=> 'post',
+  '#prefix'=> '<div id="demo_form">',
+  '#suffix'=> '</div>',
+  '#markup'=> '',
+  );
+
+
+  $form['name'] = array(
+    '#title' => t('name'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+    'placeholder' => t('enter name'),
+    'name' => t('name'),
+      ));
+
+
+  $form['roll_no'] = array(
+    '#title' => t('roll_no'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+    'placeholder' => t('enter roll no'),
+    'name' => t('roll_no'),
+      )
+  );
+
+  $form['class'] = array(
+      '#title' => t('class'),
+      '#type' => 'textfield',
+      '#required' => TRUE,
+      '#attributes' => array(
+        'placeholder' => t('enter class'),
+        'name' => t('class'),
+        )
+  );
+
+  $form['submit'] = array(
+    '#value' => 'Submit',
+    '#type' => 'submit',
+    '#ajax' => array(
+        'callback' => 'demo_form_ajax_submit',
+        'wrapper' => 'demo_form',
+        'method' => 'replace',
+        )
+  );
+
+  return($form);
+
+  }
+
+    function demo_form_ajax_submit($form, &$form_state){//submit callback
+
+          $query = db_insert('demo_form')//inserting entered data in the database
+          ->fields(array(
+                  'Name' => $form_state['values']['name'],
+                  'roll_no' => $form_state['values']['roll_no'],
+                  'class' => $form_state['values']['class'],
+
+                )
+              )
+               ->execute();
+        }
+
+
+   function show_data(){//fetching data from database
+    $results = db_query("SELECT * FROM {demo_form}");
+    $rows = array();
+    $header = array(t('Name'), t('roll_no'), t('class'), t(''));
+      foreach($results AS $result){
+        $Name= $result->Name;
+        $roll_no= $result->roll_no;
+        $class=$result->class;
+        $rows[] = array($Name,$roll_no,$class,"<a href='/dummy/test/edit/{$result->Name}'>" . t('Edit') . "</a> | <a href='/dummy/test/delete/{$result->Name}'>" . t('Delete') . "</a>");
+        }
+    return theme('table', array('header'=>$header,'rows'=>$rows));
+    }
+
+
+   function delete_form($form,&$form_state,$record) {//creating delete button
+     $form=array();
+     $form['record'] = array(
+		     '#type' => 'value',
+         '#value' => $record,
+		     );
+
+
+         return confirm_form($form,t('Are you sure you want to delete'),
+    	    isset($_GET['destination']) ? $_GET['destination'] : "admin/demo_form",t('This action cannot be undone.'),t('Delete'),t('Cancel'));
+
+        }
+
+    function delete_form_submit($form,&$form_state) {
+	   $form_values = $form_state['values'];
+     $records = $form_state['values']['record'];
+
+     $result = db_query("DELETE FROM {demo_form} where Name='{$records}'");
+     drupal_set_message(t('Record has been deleted successfully.'));
+     drupal_goto("admin/demo_form");
+   }
+
+   function edit_form($form,&$form_state){//creating edit button
+     $form = array();
+
+  	 $form['Name']=array(
+  			'#title'=>t('Name'),
+  			'#type'=>'textfield',
+      );
+  	 $form['roll_no']=array(
+  			'#title'=>t('roll_no'),
+  			'#type'=>'textfield',
+      );
+  	 $form['class']=array(
+  			'#title'=>t('class'),
+  			'#type'=>'textfield',
+     );
+     $form['submit']=array(
+       '#type'=>'submit',
+       '#value'=>'Save',
+     );
+
+    return $form;
+}
+
+  function edit_form_submit($form, &$form_state){
+
+    $form_values = $form_state['values'];
+  	  $Name = $form_state['values']['Name'];
+      $roll_no = $form_state['values']['roll_no'];
+      $class= $form_state['values']['class'];
+
+  	$rs = db_query("UPDATE  {demo_form} SET roll_no= '$roll_no', class = '$class' WHERE  Name='$Name'");
+  	 drupal_set_message(t('Record has been updated successfully.'));
+     drupal_goto("admin/demo_form");
+    }
+
+
+  function show_list(){//callback of hook_menu which displays both form and table on the same page
+    $p=drupal_get_form('demo_form');
+    $page = drupal_render($p);
+    $page .= show_data();
+    return $page;
+    }
+    // function demo_form_form_alter(&$form, &$form_state, $form_id) {
+    //   // display_set_message('hello');
+    //   print_r($form_id);
+    // }
+
+
+?>
