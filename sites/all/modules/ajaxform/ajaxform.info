@@ -1,0 +1,5 @@
+name = Ajax Form
+description = a form for payment
+core = 7.x
+package = BuildAmodule
+type= module

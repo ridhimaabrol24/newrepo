@@ -1,0 +1,295 @@
+<?php
+
+function ajaxform_menu() {
+  $items['admin/ajaxform'] = array(
+    'title' => 'Ajax Form',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ajaxform_form'),
+    'access callback' => TRUE,
+    );
+
+  $items['ajaxform/c_form'] = array(
+    'title' => 'COD',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('c_form',2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    );
+
+  $items['ajaxform/o_form'] = array(
+    'title' =>'Online Payment',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('o_form',2),
+    'access callback' =>  TRUE,
+    'type' => MENU_CALLBACK,
+    );
+
+    $items['ajaxform/thankyou'] = array(
+      'title' =>'Information Submitted',
+      'page callback' => 'thankyou',
+      // 'page arguments' => array('thankyou_form',2),
+      'access callback' =>  TRUE,
+      'type' => MENU_CALLBACK,
+      );
+
+  return $items;
+}
+
+function ajaxform_form($form,&$form_state) {
+  // $form['ajax_markup'] = array(
+  //   '#type'  => 'markup',
+  //   '#method'=> 'post',
+  //   '#prefix'=> '<div id="ajaxform_form">',
+  //   '#suffix'=> '</div>',
+  //   '#markup'=> '',
+  //  );
+
+
+  $form['payment_option'] = array(
+    '#title' => t('Payment Option'),
+    '#type' => 'select',
+    '#description' => 'Select the desired payment method.',
+    '#name'=> 'payment_option',
+    '#options' => array(t('--- SELECT ---'), t('COD'), t('Online')),
+   );
+
+  $form['submit'] = array(
+    '#value' => 'Proceed',
+    '#type' => 'submit',
+    // '#ajax' => array(
+     '#callback' => 'ajaxform_form_submit',
+  );
+    // krumo($form);
+    return $form;
+
+
+
+}
+
+function ajaxform_form_submit($form,&$form_state){
+
+  $po=$form_state['values']['payment_option'];
+
+    if($po==1){
+      $form_state['redirect']='ajaxform/c_form';
+    }elseif($po==2){
+      $form_state['redirect']='ajaxform/o_form';
+    }
+
+
+}
+
+function c_form($form,&$form_state){
+
+  $form['ajax_markup'] = array(
+    '#type'  => 'markup',
+    '#method'=> 'post',
+    '#prefix'=> '<div id="c_form">',
+    '#suffix'=> '</div>',
+    '#markup'=> '',
+   );
+
+  $form['address'] = array(
+    '#title' => t('Address'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+      'placeholder' => t('enter your address'),
+    ));
+
+  $form['phone_no'] = array(
+    '#title' => t('Phone Number'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+      'placeholder' => t('enter your phone number'),
+    ));
+
+  $form['pincode'] = array(
+    '#title' => t('Pincode'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+      'placeholder' => t('enter your area pincode'),
+        ));
+
+  $form['email'] = array(
+    '#title' => t('Email'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+      'placeholder' => t('enter your email address'),
+        ));
+
+  $form['submit'] = array(
+    '#value' => 'Submit',
+    '#type' => 'submit',
+    '#ajax' => array(
+        'callback' => 'c_form_ajax_submit',
+        'wrapper' => 'c_form',
+        'method' => 'replace',
+      ));
+
+  return $form;
+}
+
+function c_form_ajax_submit($form,&$form_state){
+
+  $query = db_insert('c_form')
+  ->fields(array(
+          'address' => $form_state['values']['address'],
+          'phone_no' => $form_state['values']['phone_no'],
+          'pincode' => $form_state['values']['pincode'],
+          'email' => $form_state['values']['email'],
+
+        )
+      )
+       ->execute();
+
+       if($form_state['values']['submit']){
+       $form_state['redirect']='ajaxform/thankyou';
+     }
+
+}
+
+function o_form($form,&$form_state){
+
+  $form['ajax_markup'] = array(
+    '#type'  => 'markup',
+    '#method'=> 'post',
+    '#prefix'=> '<div id="o_form">',
+    '#suffix'=> '</div>',
+    '#markup'=> '',
+   );
+
+  $form['bank'] = array(
+    '#title' => t('Bank'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+      'placeholder' => t('enter your bank'),
+        ));
+
+  $form['card_no'] = array(
+    '#title' => t('Card Number'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+      'placeholder' => t('enter your card number'),
+        ));
+
+  $form['noc'] = array(
+    '#title' => t('Name On Card'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#attributes' => array(
+      'placeholder' => t('enter the name on card'),
+        ));
+
+  $form['cvv'] = array(
+    '#title' => t('CVV'),
+    '#type' => 'password',
+    '#required' => TRUE,
+    '#attributes' => array(
+      'placeholder' => t('enter 3 digit CVV number'),
+        ));
+
+  $form['submit'] = array(
+    '#value' => 'Submit',
+    '#type' => 'submit',
+    '#ajax' => array(
+        'callback' => 'o_form_ajax_submit',
+        'wrapper' => 'o_form',
+        'method' => 'replace',
+        )
+  );
+
+  return $form;
+}
+
+function o_form_ajax_submit($form,&$form_state){
+  $query = db_insert('o_form')
+  ->fields(array(
+          'bank' => $form_state['values']['bank'],
+          'card_no' => $form_state['values']['card_no'],
+          'noc' => $form_state['values']['noc'],
+          'cvv' => $form_state['values']['cvv'],
+
+        )
+      )
+       ->execute();
+    $_GET['destination']="ajaxform/thankyou";
+}
+
+function thankyou(){
+  drupal_set_message('Your information has been successfully submitted');
+}
+
+function ajaxform_form_alter(&$form, &$form_state,$form_id){
+  if($form_id=='payment_form_node_form'){
+    // krumo($form);die;
+
+        $form['field_payment_method'] = array(
+        '#title' => t("payment method"),
+        '#type' => 'select',
+        '#options' => array( t('COD'), t('Online')),
+        '#required' => TRUE,
+        '#ajax' => array(
+          'method' => 'replace',
+          'event' => 'change',
+          'wrapper' => 'payment-div',
+          'callback' => 'payment_callback',
+          ),
+          // '#suffix' => '<div id="payment-div"></div>',
+        );
+
+
+        // unset($form['payment_field']);
+        $form['payment_field'] =array(
+        '#prefix'=> '<div id="payment-div">',
+        '#suffix'=> '</div>',
+        );
+
+    }
+  }
+
+  // function _submit_callback($form, &$form_state) {
+  //   krumo($form_state['input']['field_payment_method']);die;
+  // }
+
+
+function payment_callback($form,&$form_state){
+
+  $value = $form['field_payment_method']['#options'][$form_state['values']['field_payment_method']];
+  $form1 = drupal_render($form['payment_field']);
+
+    // if($value == 'COD'){drupal_render
+    //     $c_form = drupal_get_form('c_form');
+    //     $c_form = drupal_render($c_form);
+    //     return $form1 . $c_form;
+    //
+    // }elseif(($value == 'Online')){
+    //     $o_form = drupal_get_form('o_form');
+    //     $o_form = drupal_render($o_form);
+    //     return $form1 . $o_form;
+    // }
+
+    return $form;
+
+
+
+
+    // $value = $form['field_payment_method']['#options'][$form_state['values']['field_payment_method']];
+    // switch ($value) {
+    //   case 'COD':
+    //     $test = drupal_get_form('c_form');
+    //     $form['payment_field'] = $test;
+    //     break;
+    //
+    //   case 'Online':
+    //     $test1 = drupal_get_form('o_form');
+    //     $form['payment_field'] = $test1;
+    //     break;
+    // }
+    // return $form['payment_field'];
+}
